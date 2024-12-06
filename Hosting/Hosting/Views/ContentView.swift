@@ -11,7 +11,10 @@ import AVFoundation
 struct ContentView: View {
     @State private var isStreaming = false
     @State private var frontCameraPosition = CGPoint(x: 70, y: 85)
-    @StateObject private var viewModel = MultiCamViewModel()
+    @State private var isJoined = false
+    @StateObject private var viewModel = AgoraViewModel()
+
+    private var agoraManager = AgoraManager(appId: "2f9bf41583fa4597848e44e2e8f4de77")
 
     var body: some View {
         ZStack {
@@ -32,13 +35,20 @@ struct ContentView: View {
 
             VStack {
                 Spacer()
+
                 Button(action: {
-                    if isStreaming {
-                        viewModel.stopSession()
-                    } else {
-                        viewModel.startSession()
-                    }
-                    isStreaming.toggle()
+                    handleJoinButtonTapped()
+                }) {
+                    Text(isJoined ? "Joined" : "Join Stream")
+                        .padding()
+                        .background(isJoined ? Color.gray : Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding(.bottom, 20)
+                
+                Button(action: {
+                    toggleStreaming()
                 }) {
                     Text(isStreaming ? "Stop Streaming" : "Start Streaming")
                         .padding()
@@ -55,6 +65,27 @@ struct ContentView: View {
         .onDisappear {
             viewModel.stopSession()
         }
+    }
+
+    private func handleJoinButtonTapped() {
+        if !isJoined {
+            agoraManager.joinChannel(channelId: "AgoraDemo", token: nil, uid: 0) { success in
+                if success {
+                    isJoined = true
+                } else {
+                    print("Failed to join channel")
+                }
+            }
+        }
+    }
+
+    private func toggleStreaming() {
+        if isStreaming {
+            viewModel.stopSession()
+        } else {
+            viewModel.startSession()
+        }
+        isStreaming.toggle()
     }
 }
 

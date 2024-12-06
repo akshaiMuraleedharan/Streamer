@@ -21,9 +21,8 @@ final class AgoraManager {
     }
 
     func joinChannel(channelId: String, token: String? = nil, uid: UInt = 0, completion: @escaping (Bool) -> Void) {
-        agoraKit?.setChannelProfile(.liveBroadcasting)
-        agoraKit?.setClientRole(.broadcaster)
-
+        configureAgoraKitForBroadcasting()
+        
         agoraKit?.joinChannel(byToken: token, channelId: channelId, info: nil, uid: uid, joinSuccess: { (_, _, _) in
             print("Joined channel successfully.")
             completion(true)
@@ -45,19 +44,25 @@ final class AgoraManager {
     }
 
     func setupLocalVideo(view: UIView) {
-        let videoCanvas = AgoraRtcVideoCanvas()
-        videoCanvas.view = view
-        videoCanvas.renderMode = .hidden
-        videoCanvas.uid = 0
+        let videoCanvas = createVideoCanvas(view: view, uid: 0)
         agoraKit?.setupLocalVideo(videoCanvas)
     }
 
     func setupRemoteVideo(uid: UInt, view: UIView) {
+        let videoCanvas = createVideoCanvas(view: view, uid: uid)
+        agoraKit?.setupRemoteVideo(videoCanvas)
+    }
+
+    private func configureAgoraKitForBroadcasting() {
+        agoraKit?.setChannelProfile(.liveBroadcasting)
+        agoraKit?.setClientRole(.broadcaster)
+    }
+
+    private func createVideoCanvas(view: UIView, uid: UInt) -> AgoraRtcVideoCanvas {
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.view = view
         videoCanvas.renderMode = .hidden
         videoCanvas.uid = uid
-        agoraKit?.setupRemoteVideo(videoCanvas)
+        return videoCanvas
     }
 }
-
