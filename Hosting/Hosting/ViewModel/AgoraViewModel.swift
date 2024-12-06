@@ -8,8 +8,8 @@
 import SwiftUI
 import AVFoundation
 
-final class MultiCamViewModel: ObservableObject {
-    let session = AVCaptureMultiCamSession()
+final class AgoraViewModel: ObservableObject {
+    public let session = AVCaptureMultiCamSession()
     private let sessionQueue = DispatchQueue(label: "session.queue")
 
     func setupSession() {
@@ -22,7 +22,6 @@ final class MultiCamViewModel: ObservableObject {
 
             self.session.beginConfiguration()
 
-            // Configure both cameras
             self.configureCamera(for: .back)
             self.configureCamera(for: .front)
 
